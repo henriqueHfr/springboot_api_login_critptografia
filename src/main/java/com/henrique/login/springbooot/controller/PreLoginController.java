@@ -6,6 +6,7 @@ import com.henrique.login.springbooot.service.PreLoginService;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,8 +22,7 @@ public class PreLoginController {
     }
 
     @PostMapping
-    public PreLoginDTO getPreLogin(@RequestBody LoginModel login) {
-        PreLoginDTO preLoginDTO = preLoginService.getPreLoginService(login);
-        return preLoginDTO;
+    public ResponseEntity<PreLoginDTO> getPreLogin(@RequestBody LoginModel login) {
+        return preLoginService.getPreLoginService(login);
     }
 }
