@@ -17,10 +17,8 @@ public class EnterpriseModel {
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @ElementCollection
-    @CollectionTable(name = "enterprise_sso_available", joinColumns = @JoinColumn(name = "enterprise_id"))
     @Column(name = "sso_available")
-    private List<String> ssoAvailable;
+    private boolean ssoAvailable;
 
     private boolean requiresMfa;
 
@@ -33,8 +31,8 @@ public class EnterpriseModel {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public List<String> getSsoAvailable() { return ssoAvailable; }
-    public void setSsoAvailable(List<String> ssoAvailable) { this.ssoAvailable = ssoAvailable; }
+    public boolean getSsoAvailable() { return ssoAvailable; }
+    public void setSsoAvailable(boolean ssoAvailable) { this.ssoAvailable = ssoAvailable; }
 
     public boolean isRequiresMfa() { return requiresMfa; }
     public void setRequiresMfa(boolean requiresMfa) { this.requiresMfa = requiresMfa; }
