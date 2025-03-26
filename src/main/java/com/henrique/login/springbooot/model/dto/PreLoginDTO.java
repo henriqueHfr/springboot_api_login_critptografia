@@ -7,7 +7,7 @@ public class PreLoginDTO {
     private boolean user_exists;
     private boolean requires_mfa;
     private boolean password_expired;
-    private List<String> sso_available;
+    private boolean sso_available;
     private String message;
 
 
@@ -35,11 +35,11 @@ public class PreLoginDTO {
         this.password_expired = password_expired;
     }
 
-    public List<String> getSso_available() {
+    public boolean getSso_available() {
         return sso_available;
     }
 
-    public void setSso_available(List<String> sso_available) {
+    public void setSso_available(boolean sso_available) {
         this.sso_available = sso_available;
     }
 
