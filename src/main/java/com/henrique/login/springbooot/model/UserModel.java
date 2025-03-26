@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -12,7 +11,7 @@ import java.util.List;
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String name;
 
     @Column(name = "email")
@@ -26,14 +25,15 @@ public class UserModel {
     @Column(name = "password_expires")
     private LocalDate passwordExpires;
 
-    private List<String> ssoAvailable;
-    private boolean requiresMfa;
+    @ManyToOne
+    @JoinColumn(name = "enterprise_id", referencedColumnName = "id",foreignKey = @ForeignKey(name = "fk_enterprise_user"))
+    private EnterpriseModel enterprise;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -77,19 +77,6 @@ public class UserModel {
         this.passwordExpires = passwordExpires;
     }
 
-    public List<String> getSsoAvailable() {
-        return ssoAvailable;
-    }
-
-    public void setSsoAvailable(List<String> ssoAvailable) {
-        this.ssoAvailable = ssoAvailable;
-    }
-
-    public boolean isRequiresMfa() {
-        return requiresMfa;
-    }
-
-    public void setRequiresMfa(boolean requiresMfa) {
-        this.requiresMfa = requiresMfa;
-    }
+    public EnterpriseModel getEnterprise() { return enterprise; }
+    public void setEnterprise(EnterpriseModel enterprise) { this.enterprise = enterprise; }
 }

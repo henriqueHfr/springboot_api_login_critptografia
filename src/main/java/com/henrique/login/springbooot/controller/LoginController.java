@@ -28,14 +28,4 @@ public class LoginController {
         System.out.println(loginModel);
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping
-    public ResponseEntity<LoginModel> getLogin(){
-        logger.info("Getting login");
-        LoginModel login = loginService.getLogin();
-        if(login == null){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(login);
-    }
 }

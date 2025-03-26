@@ -2,6 +2,8 @@ package com.henrique.login.springbooot.service;
 
 import com.henrique.login.springbooot.model.CadastroModel;
 import com.henrique.login.springbooot.model.LoginModel;
+import com.henrique.login.springbooot.model.UserModel;
+import com.henrique.login.springbooot.repository.UserRepository;
 import com.henrique.login.springbooot.util.Criptografia;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -16,18 +18,19 @@ public class LoginService {
     private Criptografia criptografia;
     private final Queue<LoginModel> loginQueue = new ConcurrentLinkedDeque<>();
 
-    public void addLogin(CadastroModel login) {
-        logger.info("Adding login");
-        String user = criptografia.decode(login.getEmail());
-        String password = criptografia.decode(login.getPassword());
-        loginQueue.add(new LoginModel(user, password));
+    private UserRepository userRepository;
+
+    public LoginService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public LoginModel getLogin() {
-        logger.info("Getting login");
-        return loginQueue.stream()
+    public void addLogin(CadastroModel login) {
+        logger.info("Adding login");
+        UserModel user = userRepository.findAll().stream()
+                .filter(u -> u.getEmail().equals(login.getEmail()))
                 .findAny()
                 .orElse(null);
+        return;
     }
 
     public LoginModel verifyLogin(LoginModel login){
@@ -40,8 +43,4 @@ public class LoginService {
                 .orElse(null);
     }
 
-    public void clearLogin(){
-        logger.info("Clearing login");
-        loginQueue.clear();
-    }
 }
