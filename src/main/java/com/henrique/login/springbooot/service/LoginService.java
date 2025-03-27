@@ -1,46 +1,61 @@
 package com.henrique.login.springbooot.service;
 
-import com.henrique.login.springbooot.model.CadastroModel;
+import com.henrique.login.springbooot.Constants.ConstantsLogin;
 import com.henrique.login.springbooot.model.LoginModel;
 import com.henrique.login.springbooot.model.UserModel;
+import com.henrique.login.springbooot.model.dto.LoginDTO;
+import com.henrique.login.springbooot.model.dto.Response.UserResponseDTO;
 import com.henrique.login.springbooot.repository.UserRepository;
 import com.henrique.login.springbooot.util.Criptografia;
+import com.henrique.login.springbooot.util.JwtUtil;
+import com.henrique.login.springbooot.util.ReturnUserNotFound;
+import com.henrique.login.springbooot.util.SearchDataBase;
 import org.slf4j.Logger;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Service
 public class LoginService {
 
     private Logger logger;
     private Criptografia criptografia;
-    private final Queue<LoginModel> loginQueue = new ConcurrentLinkedDeque<>();
+
+    private SearchDataBase searchDataBase;
 
     private UserRepository userRepository;
 
-    public LoginService(UserRepository userRepository) {
+    public LoginService(UserRepository userRepository, SearchDataBase searchDataBase) {
         this.userRepository = userRepository;
+        this.searchDataBase = searchDataBase;
     }
 
-    public void addLogin(CadastroModel login) {
-        logger.info("Adding login");
-        UserModel user = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(login.getEmail()))
-                .findAny()
-                .orElse(null);
-        return;
-    }
+    public ResponseEntity<?> verifyLoginAndGenrateToken(LoginModel login){
+        UserModel user = searchDataBase.searchUserByEmailAndPassword(login);
+        if(user == null){
+            LoginDTO returnUserNotFound = ReturnUserNotFound.returnUserNotFoundLogin();
+            return ResponseEntity.badRequest().body(returnUserNotFound);
+        }
+        String acessToken = JwtUtil.generateToken(user.getId(), user.getEmail());
+        String refreshToken = JwtUtil.generateRefreshToken(user.getId());
 
-    public LoginModel verifyLogin(LoginModel login){
-        logger.info("Verifying login");
-        String user = criptografia.decode(login.getPassword());
-        String password = criptografia.decode(login.getPassword());
-        return loginQueue.stream()
-                .filter(l -> l.getEmail().equals(user) && l.getPassword().equals(password))
-                .findFirst()
-                .orElse(null);
+        UserResponseDTO userResponseDTO = new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getDateOfBirth()
+        );
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setAccess_token(acessToken);
+        loginDTO.setRefresh_token(refreshToken);
+        loginDTO.setToken_type("Bearer");
+        loginDTO.setExpires_in(3600);
+        loginDTO.setUser(userResponseDTO);
+        loginDTO.setRequires_mfa(user.getEnterprise() != null ? user.getEnterprise().isRequiresMfa() : false);
+        loginDTO.setMessage(ConstantsLogin.LOGIN_SUCCESS);
+        loginDTO.setCode(200);
+
+        return ResponseEntity.ok(loginDTO);
     }
 
 }
