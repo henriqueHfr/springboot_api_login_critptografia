@@ -1,13 +1,14 @@
 package com.henrique.login.springbooot.service;
 
-import com.henrique.login.springbooot.model.EnterpriseModel;
 import com.henrique.login.springbooot.model.LoginModel;
 import com.henrique.login.springbooot.model.UserModel;
 import com.henrique.login.springbooot.model.dto.PreLoginDTO;
 import com.henrique.login.springbooot.repository.EnterpriseRepository;
 import com.henrique.login.springbooot.repository.UserRepository;
-import com.henrique.login.springbooot.util.Constants.ConstantsPreLogin;
+import com.henrique.login.springbooot.Constants.ConstantsPreLogin;
 import com.henrique.login.springbooot.util.IsPasswordExpired;
+import com.henrique.login.springbooot.util.ReturnUserNotFound;
+import com.henrique.login.springbooot.util.SearchDataBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,24 +23,23 @@ public class PreLoginService {
     PreLoginDTO preLoginDTO = new PreLoginDTO();
 
     @Autowired
+    private SearchDataBase searchDataBase;
+
+    @Autowired
+    private ReturnUserNotFound returnUserNotFound;
+
+    @Autowired
     public PreLoginService(UserRepository userRepository, EnterpriseRepository enterpriseRepository) {
         this.userRepository = userRepository;
         this.enterpriseRepository = enterpriseRepository;
     }
 
     public ResponseEntity<PreLoginDTO> getPreLoginService(LoginModel login) {
-        UserModel user = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(login.getEmail()))
-                .findAny()
-                .orElse(null);
+        UserModel user = searchDataBase.searchUserByEmail(login);
 
         if (user == null) {
-            preLoginDTO.setUser_exists(false);
-            preLoginDTO.setPassword_expired(false);
-            preLoginDTO.setRequires_mfa(false);
-            preLoginDTO.setSso_available(false);
-            preLoginDTO.setMessage("User does not exist");
-            return ResponseEntity.badRequest().body(preLoginDTO);
+            PreLoginDTO userNotFound = ReturnUserNotFound.returnUserNotFoundPreLogin();
+            return ResponseEntity.badRequest().body(userNotFound);
         }
 
         boolean isPasswordExpired = IsPasswordExpired.isPasswordExpired(user);
