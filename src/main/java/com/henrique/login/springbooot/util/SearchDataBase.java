@@ -1,6 +1,8 @@
 package com.henrique.login.springbooot.util;
 
 import com.henrique.login.springbooot.model.LoginModel;
+import com.henrique.login.springbooot.model.MfaModel;
+import com.henrique.login.springbooot.model.PreLoginModel;
 import com.henrique.login.springbooot.model.UserModel;
 import com.henrique.login.springbooot.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -21,9 +23,16 @@ public class SearchDataBase {
                 .findAny()
                 .orElse(null);
     }
-    public UserModel searchUserByEmail(LoginModel login) {
+    public UserModel searchUserByEmail(PreLoginModel preLogin) {
         return userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(login.getEmail()))
+                .filter(u -> u.getEmail().equals(preLogin.getEmail()))
+                .findAny()
+                .orElse(null);
+    }
+
+    public UserModel searchMfaByEmail(MfaModel mfaModel) {
+        return userRepository.findAll().stream()
+                .filter(u -> u.getEmail().equals(mfaModel.getEmail()))
                 .findAny()
                 .orElse(null);
     }

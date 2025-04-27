@@ -2,6 +2,8 @@ package com.henrique.login.springbooot.service;
 
 import com.henrique.login.springbooot.model.CadastroModel;
 import com.henrique.login.springbooot.model.LoginModel;
+import com.henrique.login.springbooot.model.MfaModel;
+import com.henrique.login.springbooot.model.PreLoginModel;
 import com.henrique.login.springbooot.util.Criptografia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,5 +44,16 @@ public class CriptografiaService {
         loginModel.setPassword(criptografia.decode(loginModel.getPassword()));
         loginModel.setEmail(criptografia.decode(loginModel.getEmail()));
         return loginModel;
+    }
+    public MfaModel decodeMfaBody(MfaModel mfaModel){
+        log.info("Decode mfa body");
+        mfaModel.setEmail(criptografia.decode(mfaModel.getEmail()));
+        return mfaModel;
+    }
+
+    public PreLoginModel decodePreLoginBody(PreLoginModel preLogin){
+        log.info("Decode login body");
+        preLogin.setEmail(criptografia.decode(preLogin.getEmail()));
+        return preLogin;
     }
 }

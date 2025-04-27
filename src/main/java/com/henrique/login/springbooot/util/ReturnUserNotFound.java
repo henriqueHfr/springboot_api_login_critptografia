@@ -1,6 +1,6 @@
 package com.henrique.login.springbooot.util;
 
-import com.henrique.login.springbooot.model.dto.LoginDTO;
+import com.henrique.login.springbooot.model.dto.MfaDTO;
 import com.henrique.login.springbooot.model.dto.PreLoginDTO;
 import com.henrique.login.springbooot.Constants.ConstantsLogin;
 import com.henrique.login.springbooot.Constants.ConstantsPreLogin;
@@ -21,8 +21,8 @@ public class ReturnUserNotFound {
         return preLoginDTO;
     }
 
-    public static LoginDTO returnUserNotFoundLogin() {
-        LoginDTO loginDTO = new LoginDTO();
+    public static MfaDTO returnUserNotFoundLogin() {
+        MfaDTO loginDTO = new MfaDTO();
         loginDTO.setUser(null);
         loginDTO.setAccess_token(null);
         loginDTO.setRefresh_token(null);

@@ -14,10 +14,15 @@ public class UserModel {
     private Long id;
     private String name;
 
-    @Column(name = "email")
-    @UniqueElements
+    @Column(unique = true)
     private String email;
     private String password;
+
+    @Column(name = "phone_number")
+    private String phone;
+
+    @Column(name = "mfa_code")
+    private Integer mfaCode;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -79,4 +84,16 @@ public class UserModel {
 
     public EnterpriseModel getEnterprise() { return enterprise; }
     public void setEnterprise(EnterpriseModel enterprise) { this.enterprise = enterprise; }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setMfaCode(int mfaCode) {
+        this.mfaCode = mfaCode;
+    }
+
+    public int getMfaCode() {
+        return mfaCode;
+    }
 }

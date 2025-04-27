@@ -1,18 +1,17 @@
 package com.henrique.login.springbooot.service;
 
 import com.henrique.login.springbooot.model.LoginModel;
+import com.henrique.login.springbooot.model.PreLoginModel;
 import com.henrique.login.springbooot.model.UserModel;
 import com.henrique.login.springbooot.model.dto.PreLoginDTO;
 import com.henrique.login.springbooot.repository.EnterpriseRepository;
 import com.henrique.login.springbooot.repository.UserRepository;
 import com.henrique.login.springbooot.Constants.ConstantsPreLogin;
-import com.henrique.login.springbooot.util.IsPasswordExpired;
-import com.henrique.login.springbooot.util.ReturnUserNotFound;
-import com.henrique.login.springbooot.util.SearchDataBase;
+import com.henrique.login.springbooot.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+import software.amazon.awssdk.services.sns.model.PublishResponse;
 
 
 @Service
@@ -28,14 +27,21 @@ public class PreLoginService {
     @Autowired
     private ReturnUserNotFound returnUserNotFound;
 
+    private CriptografiaService criptografiaService;
+
+    private SendEmailService sendEmailService;
+
     @Autowired
-    public PreLoginService(UserRepository userRepository, EnterpriseRepository enterpriseRepository) {
+    public PreLoginService(UserRepository userRepository, EnterpriseRepository enterpriseRepository, CriptografiaService criptografiaService, SendEmailService sendEmailService) {
+        this.criptografiaService = new CriptografiaService();
+        this.sendEmailService = sendEmailService;
         this.userRepository = userRepository;
         this.enterpriseRepository = enterpriseRepository;
     }
 
-    public ResponseEntity<PreLoginDTO> getPreLoginService(LoginModel login) {
-        UserModel user = searchDataBase.searchUserByEmail(login);
+    public ResponseEntity<PreLoginDTO> getPreLoginService(PreLoginModel preLogin) {
+        PreLoginModel preLoginDecrypted = criptografiaService.decodePreLoginBody(preLogin);
+        UserModel user = searchDataBase.searchUserByEmail(preLoginDecrypted);
 
         if (user == null) {
             PreLoginDTO userNotFound = ReturnUserNotFound.returnUserNotFoundPreLogin();
@@ -63,6 +69,8 @@ public class PreLoginService {
         } else {
             preLoginDTO.setMessage(ConstantsPreLogin.USER_EXISTS_AND_MULTIFACTOR_MANDATORY);
         }
+
+
 
         return ResponseEntity.ok().body(preLoginDTO);
     }

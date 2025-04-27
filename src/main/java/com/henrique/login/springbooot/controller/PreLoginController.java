@@ -1,6 +1,7 @@
 package com.henrique.login.springbooot.controller;
 
 import com.henrique.login.springbooot.model.LoginModel;
+import com.henrique.login.springbooot.model.PreLoginModel;
 import com.henrique.login.springbooot.model.dto.PreLoginDTO;
 import com.henrique.login.springbooot.service.PreLoginService;
 
@@ -22,7 +23,7 @@ public class PreLoginController {
     }
 
     @PostMapping
-    public ResponseEntity<PreLoginDTO> getPreLogin(@RequestBody LoginModel login) {
-        return preLoginService.getPreLoginService(login);
+    public ResponseEntity<PreLoginDTO> getPreLogin(@RequestBody PreLoginModel preLogin) {
+        return preLoginService.getPreLoginService(preLogin);
     }
 }

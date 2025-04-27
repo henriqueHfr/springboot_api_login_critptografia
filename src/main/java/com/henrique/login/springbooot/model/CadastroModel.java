@@ -13,6 +13,7 @@ public class CadastroModel {
     @NotNull
     private String dateOfBirth;
 
+
     public CadastroModel(final String name, final String email, final String password, final String dateOfBirth) {
         this.name = name;
         this.email = email;
