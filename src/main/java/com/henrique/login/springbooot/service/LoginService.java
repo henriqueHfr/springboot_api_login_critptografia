@@ -9,11 +9,8 @@ import com.henrique.login.springbooot.model.dto.MfaDTO;
 import com.henrique.login.springbooot.model.dto.Response.UserResponseDTO;
 import com.henrique.login.springbooot.repository.UserRepository;
 import com.henrique.login.springbooot.util.*;
-import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 
 @Service
