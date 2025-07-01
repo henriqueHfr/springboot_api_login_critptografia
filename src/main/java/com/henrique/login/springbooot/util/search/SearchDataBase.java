@@ -1,19 +1,21 @@
-package com.henrique.login.springbooot.util;
+package com.henrique.login.springbooot.util.search;
 
-import com.henrique.login.springbooot.model.LoginModel;
-import com.henrique.login.springbooot.model.MfaModel;
-import com.henrique.login.springbooot.model.PreLoginModel;
-import com.henrique.login.springbooot.model.UserModel;
+import com.henrique.login.springbooot.model.*;
+import com.henrique.login.springbooot.repository.ServiceRepository;
 import com.henrique.login.springbooot.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class SearchDataBase {
 
     private UserRepository userRepository;
+    private ServiceRepository serviceRepository;
 
-    public SearchDataBase(UserRepository userRepository) {
+    public SearchDataBase(UserRepository userRepository, ServiceRepository serviceRepository) {
         this.userRepository = userRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     public UserModel searchUserByEmailAndPassword(LoginModel login) {
@@ -35,5 +37,8 @@ public class SearchDataBase {
                 .filter(u -> u.getEmail().equals(mfaModel.getEmail()))
                 .findAny()
                 .orElse(null);
+    }
+    public Optional<ServiceModel> searchByServiceAndToken(String name_service, String jwt_token) {
+        return serviceRepository.findByNameServiceAndJwtToken(name_service, jwt_token);
     }
 }

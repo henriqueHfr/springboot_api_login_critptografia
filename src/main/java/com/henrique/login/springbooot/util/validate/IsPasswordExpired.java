@@ -1,4 +1,4 @@
-package com.henrique.login.springbooot.util;
+package com.henrique.login.springbooot.util.validate;
 
 import com.henrique.login.springbooot.model.UserModel;
 

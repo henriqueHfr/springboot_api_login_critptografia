@@ -2,6 +2,7 @@ package com.henrique.login.springbooot.controller;
 
 import com.henrique.login.springbooot.model.CadastroModel;
 import com.henrique.login.springbooot.model.LoginModel;
+import com.henrique.login.springbooot.model.PreLoginModel;
 import com.henrique.login.springbooot.service.CriptografiaService;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,11 @@ public class CriptografiaController {
     @PostMapping("/decodeLogin")
     public ResponseEntity<LoginModel> decodeLoginBody(@RequestBody LoginModel loginModel){
         LoginModel body = criptografiaService.decodeLoginBody(loginModel);
+        return ResponseEntity.ok(body);
+    }
+    @PostMapping("/encodePreLogin")
+    public ResponseEntity<PreLoginModel> encondePreLoginBody(@RequestBody PreLoginModel preloginModel){
+        PreLoginModel body = criptografiaService.encodePreLoginBody(preloginModel);
         return ResponseEntity.ok(body);
     }
 }

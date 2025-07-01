@@ -1,29 +1,28 @@
 package com.henrique.login.springbooot.service;
 
-import com.henrique.login.springbooot.Constants.ConstantsLogin;
+import com.henrique.login.springbooot.util.Constants.ConstantsLogin;
 import com.henrique.login.springbooot.model.LoginModel;
 import com.henrique.login.springbooot.model.MfaModel;
 import com.henrique.login.springbooot.model.UserModel;
 import com.henrique.login.springbooot.model.dto.LoginDTO;
 import com.henrique.login.springbooot.model.dto.MfaDTO;
-import com.henrique.login.springbooot.model.dto.Response.UserResponseDTO;
 import com.henrique.login.springbooot.repository.UserRepository;
 import com.henrique.login.springbooot.util.*;
+import com.henrique.login.springbooot.util.responses.ResponseLogin;
+import com.henrique.login.springbooot.util.responses.ResponseMFA;
+import com.henrique.login.springbooot.util.search.SearchDataBase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 
 
 @Service
 public class LoginService {
 
     private SearchDataBase searchDataBase;
-
     private UserRepository userRepository;
-
     private SendEmailService sendEmailService;
-
     private CriptografiaService criptografiaService;
-
     public LoginService(CriptografiaService criptografiaService, SearchDataBase searchDataBase, SendEmailService sendEmailService, UserRepository userRepository) {
         this.criptografiaService = criptografiaService;
         this.sendEmailService = sendEmailService;
@@ -39,61 +38,34 @@ public class LoginService {
             MfaDTO returnUserNotFound = ReturnUserNotFound.returnUserNotFoundLogin();
             return ResponseEntity.badRequest().body(returnUserNotFound);
         }
-
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setEmail(user.getEmail());
-        loginDTO.setMfa(user.getEnterprise() != null ? user.getEnterprise().isRequiresMfa() : false);
-        loginDTO.setMessage("usuário e senha corretos");
-
+        LoginDTO loginDTO = ResponseLogin.buildLoginReponse(user);
         if (loginDTO.isMfa()) {
             int number = GenerateMfaNumber.generateMfaCode();
-
             user.setMfaCode(number);
-
             userRepository.save(user);
-
-            sendEmailService.sendSms(user.getPhone(), "Auth: " + number + ". Olá sergio, funcionou o envio de sms");
+            String mensagem = ConstantsLogin.EMAIL_MESSAGE + String.valueOf(number);
+            sendEmailService.sendSms(user.getPhone(), mensagem);
         }
         return ResponseEntity.ok(loginDTO);
     }
 
     public ResponseEntity<?> verifyMfa(MfaModel mfa) {
-        MfaModel mfaDescriptografado = criptografiaService.decodeMfaBody(mfa);
-        UserModel user = searchDataBase.searchMfaByEmail(mfaDescriptografado);
+        MfaModel decryptedMfa = criptografiaService.decodeMfaBody(mfa);
+        UserModel user = searchDataBase.searchMfaByEmail(decryptedMfa);
 
         if (user == null) {
-            MfaDTO returnUserNotFound = ReturnUserNotFound.returnUserNotFoundLogin();
-            return ResponseEntity.badRequest().body(returnUserNotFound);
+            return ResponseEntity.badRequest().body(ReturnUserNotFound.returnUserNotFoundLogin());
         }
 
-        if (user.getMfaCode() == 0 || mfa.getMfaCode() == 0) {
-            return ResponseEntity.badRequest().body("MFA code not found.");
+        if (user.getMfaCode() == 0 &&  mfa.getMfaCode() == 0) {
+            return ResponseEntity.badRequest().body(ConstantsLogin.MFA_NOT_FOUND);
         }
 
         if (user.getMfaCode() != mfa.getMfaCode()) {
-            return ResponseEntity.badRequest().body("Invalid MFA code.");
+            return ResponseEntity.badRequest().body(ConstantsLogin.MFA_CODE_NOT_MATCH);
         }
 
-        String accessToken = JwtUtil.generateToken(user.getId(), user.getEmail());
-        String refreshToken = JwtUtil.generateRefreshToken(user.getId());
-
-        UserResponseDTO userResponseDTO = new UserResponseDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getDateOfBirth()
-        );
-
-        MfaDTO mfaDTO = new MfaDTO();
-        mfaDTO.setAccess_token(accessToken);
-        mfaDTO.setRefresh_token(refreshToken);
-        mfaDTO.setToken_type("Bearer");
-        mfaDTO.setExpires_in(3600);
-        mfaDTO.setUser(userResponseDTO);
-        mfaDTO.setRequires_mfa(user.getEnterprise() != null && user.getEnterprise().isRequiresMfa());
-        mfaDTO.setMessage(ConstantsLogin.LOGIN_SUCCESS);
-        mfaDTO.setCode(200);
-
+        MfaDTO mfaDTO = ResponseMFA.buildMfaResponse(user);
         return ResponseEntity.ok(mfaDTO);
     }
 

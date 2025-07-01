@@ -1,4 +1,4 @@
-package com.henrique.login.springbooot.Constants;
+package com.henrique.login.springbooot.util.Constants;
 
 public class ConstantsPreLogin {
 

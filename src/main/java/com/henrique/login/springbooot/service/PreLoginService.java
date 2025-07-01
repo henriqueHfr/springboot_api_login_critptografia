@@ -1,17 +1,17 @@
 package com.henrique.login.springbooot.service;
 
-import com.henrique.login.springbooot.model.LoginModel;
 import com.henrique.login.springbooot.model.PreLoginModel;
 import com.henrique.login.springbooot.model.UserModel;
 import com.henrique.login.springbooot.model.dto.PreLoginDTO;
 import com.henrique.login.springbooot.repository.EnterpriseRepository;
 import com.henrique.login.springbooot.repository.UserRepository;
-import com.henrique.login.springbooot.Constants.ConstantsPreLogin;
+import com.henrique.login.springbooot.util.Constants.ConstantsPreLogin;
 import com.henrique.login.springbooot.util.*;
+import com.henrique.login.springbooot.util.search.SearchDataBase;
+import com.henrique.login.springbooot.util.validate.IsPasswordExpired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.sns.model.PublishResponse;
 
 
 @Service
@@ -22,7 +22,7 @@ public class PreLoginService {
     PreLoginDTO preLoginDTO = new PreLoginDTO();
 
     @Autowired
-    private SearchDataBase searchDataBase;
+    private com.henrique.login.springbooot.util.search.SearchDataBase searchDataBase;
 
     @Autowired
     private ReturnUserNotFound returnUserNotFound;
@@ -54,13 +54,13 @@ public class PreLoginService {
         preLoginDTO.setPassword_expired(isPasswordExpired);
         preLoginDTO.setRequires_mfa(user.getEnterprise() != null ? user.getEnterprise().isRequiresMfa() : false);
 
-        if (user.getEnterprise() != null) {
-            preLoginDTO.setSso_available(user.getEnterprise().getSsoAvailable());
-        } else {
+        if (user.getEnterprise() == null) {
             preLoginDTO.setSso_available(false);
             preLoginDTO.setMessage(ConstantsPreLogin.FAILED_TO_SEARCH_ENTERPRISE);
             return ResponseEntity.badRequest().body(preLoginDTO);
         }
+
+        preLoginDTO.setSso_available(user.getEnterprise().getSsoAvailable());
 
         if (isPasswordExpired) {
             preLoginDTO.setMessage(ConstantsPreLogin.PASSWORD_EXPIRED);

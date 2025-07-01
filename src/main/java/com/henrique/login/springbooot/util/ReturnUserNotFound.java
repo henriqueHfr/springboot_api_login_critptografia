@@ -2,8 +2,8 @@ package com.henrique.login.springbooot.util;
 
 import com.henrique.login.springbooot.model.dto.MfaDTO;
 import com.henrique.login.springbooot.model.dto.PreLoginDTO;
-import com.henrique.login.springbooot.Constants.ConstantsLogin;
-import com.henrique.login.springbooot.Constants.ConstantsPreLogin;
+import com.henrique.login.springbooot.util.Constants.ConstantsLogin;
+import com.henrique.login.springbooot.util.Constants.ConstantsPreLogin;
 import org.springframework.stereotype.Service;
 
 @Service
